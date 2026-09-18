@@ -16,6 +16,10 @@
 					"type": "string",
 					"description": "A name for the dev container which can be displayed to the user."
 				},
+				"extends": {
+					"type": "string",
+					"description": "A relative path to a JSON or JSONC file in the same repository whose configuration is used as a base. The referenced file is merged with this file using the image metadata merge logic."
+				},
 				"features": {
 					"type": "object",
 					"description": "Features to add to the dev container.",
