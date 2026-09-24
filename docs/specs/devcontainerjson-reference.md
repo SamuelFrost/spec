@@ -73,11 +73,10 @@ Uses the same [merge logic](devcontainer-reference.md#merge-logic) applied to im
 
 ### `extendsMergeMode`: `override`
 
-Uses overlay-style merging when the current file should replace rather than combine with the base:
+Uses overlay-style merging when the current file should replace inherited values rather than combine with the base (`{ ...base, ...current }`):
 
-- Arrays and scalars from the current file replace the base when set on the current file (for example, `forwardPorts` is only the current file's list).
-- Object maps and `hostRequirements` are shallow-merged per key, with the current file winning on conflicts.
-- Boolean `init` and `privileged` use the current file's value when set.
+- Each top-level property set on the current file fully replaces the inherited value (arrays, object maps, `hostRequirements`, scalars, and booleans).
+- Top-level properties omitted on the current file keep the value from the referenced configuration chain.
 
 Neither `extends` nor `extendsMergeMode` is present in the merged result.
 

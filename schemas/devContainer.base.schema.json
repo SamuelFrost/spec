@@ -26,7 +26,7 @@
 						"combine",
 						"override"
 					],
-					"description": "How to merge the referenced extends file with this file. combine (default) uses the image metadata merge logic. override replaces arrays and scalars from this file and shallow-merges object maps and hostRequirements."
+					"description": "How to merge the referenced extends file with this file. combine (default) uses the image metadata merge logic. override uses spread semantics: each top-level property set on this file fully replaces the inherited value; omitted properties keep the inherited value."
 				},
 				"features": {
 					"type": "object",
