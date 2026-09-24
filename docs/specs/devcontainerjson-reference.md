@@ -9,7 +9,8 @@ Metadata properties marked with a 🏷️ can be stored in the `devcontainer.met
 | Property | Type | Description |
 |----------|------|-------------|
 | `name` | string | A name for the dev container displayed in the UI |
-| `extends` | string | A relative path to a JSON or JSONC file in the same repository to use as a base configuration. The referenced file is merged with this file using the [image metadata merge logic](devcontainer-reference.md#merge-logic). See [Configuration inheritance](#configuration-inheritance). |
+| `extends` | string | A relative path to a JSON or JSONC file in the same repository to use as a base configuration. The referenced file is merged with this file using the logic selected by `extendsMergeMode`. See [Configuration inheritance](#configuration-inheritance). |
+| `extendsMergeMode` | string | Optional. `combine` (default) or `override`. See [Configuration inheritance](#configuration-inheritance). |
 | `forwardPorts` 🏷️ | array | An array of port numbers or `"host:port"` values  (e.g. `[3000, "db:5432"]`) that should always be forwarded from inside the primary container to the local machine (including on the web). The property is most useful for forwarding ports that cannot be auto-forwarded because the related process that starts before the `devcontainer.json` supporting service / tool connects or for forwarding a service not in the primary container in Docker Compose scenarios (e.g. `"db:5432"`). Defaults to `[]`. |
 | `portsAttributes` 🏷️ | object | Object that maps a port number, `"host:port"` value, range, or regular expression to a set of default options. See [port attributes](#port-attributes) for available options. For example: <br />`"portsAttributes": {"3000": {"label": "Application port"}}` |
 | `otherPortsAttributes` 🏷️ | object | Default options for ports, port ranges, and hosts that aren't configured using `portsAttributes`. See [port attributes](#port-attributes) for available options. For example: <br /> `"otherPortsAttributes": {"onAutoForward": "silent"}` |
@@ -58,7 +59,11 @@ Multiple teams collaborating on a common codebase may need slightly different `d
 
 `extends` is a path relative to the file that declares it (for example `"./defaults.json"`, `"../defaults.json"`, or `"./dev/defaults.json"`). Referenced files may themselves use `extends`. Absolute paths and URLs are not supported.
 
-The referenced configuration is merged with the current file using the same [merge logic](devcontainer-reference.md#merge-logic) applied to image metadata, with the current file considered last:
+The referenced configuration is merged with the current file. The current file is considered last. Use `extendsMergeMode` on the file that declares `extends` to choose the merge behavior (default: `combine`).
+
+### `extendsMergeMode`: `combine` (default)
+
+Uses the same [merge logic](devcontainer-reference.md#merge-logic) applied to image metadata:
 
 - Array properties such as `forwardPorts`, `capAdd`, and `securityOpt` are the union of values without duplicates.
 - `hostRequirements` takes the maximum of each field.
@@ -66,7 +71,15 @@ The referenced configuration is merged with the current file using the same [mer
 - Boolean `init` and `privileged` are `true` if at least one value is `true`.
 - Scalar properties such as `name`, `image`, `remoteUser`, and lifecycle commands use last value wins.
 
-The `extends` property itself is not present in the merged result.
+### `extendsMergeMode`: `override`
+
+Uses overlay-style merging when the current file should replace rather than combine with the base:
+
+- Arrays and scalars from the current file replace the base when set on the current file (for example, `forwardPorts` is only the current file's list).
+- Object maps and `hostRequirements` are shallow-merged per key, with the current file winning on conflicts.
+- Boolean `init` and `privileged` use the current file's value when set.
+
+Neither `extends` nor `extendsMergeMode` is present in the merged result.
 
 ## Scenario specific properties
 

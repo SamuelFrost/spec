@@ -18,7 +18,15 @@
 				},
 				"extends": {
 					"type": "string",
-					"description": "A relative path to a JSON or JSONC file in the same repository whose configuration is used as a base. The referenced file is merged with this file using the image metadata merge logic."
+					"description": "A relative path to a JSON or JSONC file in the same repository whose configuration is used as a base. The referenced file is merged with this file using the merge logic selected by extendsMergeMode."
+				},
+				"extendsMergeMode": {
+					"type": "string",
+					"enum": [
+						"combine",
+						"override"
+					],
+					"description": "How to merge the referenced extends file with this file. combine (default) uses the image metadata merge logic. override replaces arrays and scalars from this file and shallow-merges object maps and hostRequirements."
 				},
 				"features": {
 					"type": "object",
