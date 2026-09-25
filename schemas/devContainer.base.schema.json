@@ -18,7 +18,7 @@
 				},
 				"extends": {
 					"type": "string",
-					"description": "A relative path to a JSON or JSONC file in the same repository whose configuration is used as a base. The referenced file is merged with this file using the merge logic selected by extendsMergeMode."
+					"description": "Relative path to a JSON or JSONC configuration to be inherited from present in the same repository."
 				},
 				"extendsMergeMode": {
 					"type": "string",
@@ -26,7 +26,7 @@
 						"combine",
 						"override"
 					],
-					"description": "How to merge the referenced extends file with this file. combine (default) uses the image metadata merge logic. override uses spread semantics: each top-level property set on this file fully replaces the inherited value; omitted properties keep the inherited value."
+					"description": "Specifies how to merge this file with the referenced extends file when extends is set. combine (default) uses image metadata merge logic. override inherits then replaces top-level properties when a key is set in this file."
 				},
 				"features": {
 					"type": "object",

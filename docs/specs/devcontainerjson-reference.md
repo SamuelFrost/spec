@@ -9,7 +9,7 @@ Metadata properties marked with a 🏷️ can be stored in the `devcontainer.met
 | Property | Type | Description |
 |----------|------|-------------|
 | `name` | string | A name for the dev container displayed in the UI |
-| `extends` | string | A relative path to a JSON or JSONC file in the same repository to use as a base configuration. The referenced file is merged with this file using the logic selected by `extendsMergeMode`. See [Configuration inheritance](#configuration-inheritance). |
+| `extends` | string | Relative path to a JSON or JSONC base configuration in the same repository. See [Configuration inheritance](#configuration-inheritance). |
 | `extendsMergeMode` | string | Optional. `combine` (default) or `override`. See [Configuration inheritance](#configuration-inheritance). |
 | `forwardPorts` 🏷️ | array | An array of port numbers or `"host:port"` values  (e.g. `[3000, "db:5432"]`) that should always be forwarded from inside the primary container to the local machine (including on the web). The property is most useful for forwarding ports that cannot be auto-forwarded because the related process that starts before the `devcontainer.json` supporting service / tool connects or for forwarding a service not in the primary container in Docker Compose scenarios (e.g. `"db:5432"`). Defaults to `[]`. |
 | `portsAttributes` 🏷️ | object | Object that maps a port number, `"host:port"` value, range, or regular expression to a set of default options. See [port attributes](#port-attributes) for available options. For example: <br />`"portsAttributes": {"3000": {"label": "Application port"}}` |
@@ -33,7 +33,7 @@ Metadata properties marked with a 🏷️ can be stored in the `devcontainer.met
 
 ## Configuration inheritance
 
-Multiple teams collaborating on a common codebase may need slightly different `devcontainer.json` settings. The `extends` property lets a configuration inherit from another JSON or JSONC file in the same repository:
+Use `extends` to inherit settings from another JSON or JSONC file in the same repository:
 
 ```jsonc
 // .devcontainer/defaults.json
@@ -57,28 +57,28 @@ Multiple teams collaborating on a common codebase may need slightly different `d
 }
 ```
 
-`extends` is a path relative to the file that declares it (for example `"./defaults.json"`, `"../defaults.json"`, or `"./dev/defaults.json"`). Referenced files may themselves use `extends`. Absolute paths and URLs are not supported.
+`extends` is relative to the file that declares it, for example `"./defaults.json"`, `"../defaults.json"`, or `"./dev/defaults.json"`. Referenced files may also use `extends`. Absolute paths and URLs are not supported.
 
-The referenced configuration is merged with the current file. The current file is considered last. Use `extendsMergeMode` on the file that declares `extends` to choose the merge behavior (default: `combine`).
+The referenced configuration is merged first, then the current file is applied. Use `extendsMergeMode` on the file that declares `extends` to choose the merge behavior.
+
+Both `extends` and `extendsMergeMode` properties are removed from the merged result.
 
 ### `extendsMergeMode`: `combine` (default)
 
-Uses the same [merge logic](devcontainer-reference.md#merge-logic) applied to image metadata:
+Uses the same [merge logic](devcontainer-reference.md#merge-logic) as image metadata:
 
 - Array properties such as `forwardPorts`, `capAdd`, and `securityOpt` are the union of values without duplicates.
 - `hostRequirements` takes the maximum of each field.
 - Object maps such as `remoteEnv`, `containerEnv`, `features`, and `customizations` merge per key, with the current file winning on conflicts.
 - Boolean `init` and `privileged` are `true` if at least one value is `true`.
-- Scalar properties such as `name`, `image`, `remoteUser`, and lifecycle commands use last value wins.
+- Single-value properties such as `name`, `image`, and `remoteUser` override the value from the referenced file if set in the current file.
 
 ### `extendsMergeMode`: `override`
 
-Uses overlay-style merging when the current file should replace inherited values rather than combine with the base (`{ ...base, ...current }`):
+Uses top-level merging with key-based overrides (`{ ...base, ...current }`):
 
-- Each top-level property set on the current file fully replaces the inherited value (arrays, object maps, `hostRequirements`, scalars, and booleans).
-- Top-level properties omitted on the current file keep the value from the referenced configuration chain.
-
-Neither `extends` nor `extendsMergeMode` is present in the merged result.
+- Properties set in the current file replace the inherited value.
+- Properties omitted from the current file keep the inherited value.
 
 ## Scenario specific properties
 
